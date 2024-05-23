@@ -1,4 +1,9 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const fs = require("fs").promises;
+
 const { userModel } = require("../models/user.model");
+
 // user signup
 const signup = async (req, res) => {
   try {
@@ -8,22 +13,43 @@ const signup = async (req, res) => {
         .json({ ok: false, message: req.fileValidationError });
     }
     const { username, email, password, dateOfBirth } = req.body;
-    const photoPath = req.files?.photo?.[0].path;
-    const cvPath = req.files?.cv?.[0].path;
+    if (!username || !email || !password || !dateOfBirth) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "All fields are required." });
+    }
+    if (!req.files || !req.files["photo"] || !req.files["cv"]) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "Photo and CV are required." });
+    }
+    const photo = req.files["photo"][0];
+    const cv = req.files["cv"][0];
+    const photoBuffer = await fs.readFile(photo.path);
+    const cvBuffer = await fs.readFile(cv.path);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new userModel({
       username,
       email,
-      password,
+      password: hashedPassword,
       dateOfBirth,
-      photo: photoPath,
-      cv: cvPath,
+      photo: {
+        data: photoBuffer,
+        contentType: photo.mimetype,
+      },
+      cv: {
+        data: cvBuffer,
+        contentType: cv.mimetype,
+      },
     });
     await user.save();
     return res
       .status(200)
       .json({ ok: true, message: "Signup successful! Please log in." });
   } catch (err) {
-    res
+    console.error(err);
+    return res
       .status(500)
       .json({ ok: false, message: err.message || "Signup failed!" });
   }
@@ -33,6 +59,11 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "Invalid username or password." });
+    }
     const user = await userModel.findOne({ username });
     if (!user) {
       return res
@@ -42,7 +73,7 @@ const login = async (req, res) => {
     if (!user.isVerified) {
       return res
         .status(401)
-        .json({ ok: false, message: "Wait for account verification." });
+        .json({ ok: false, message: "Wait for admin to verify your account." });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -56,7 +87,10 @@ const login = async (req, res) => {
     const token = jwt.sign(payload, secret, { expiresIn: "1D" });
     return res.status(200).json({ ok: true, token, isAdmin: user.isAdmin });
   } catch (err) {
-    return res.status(500).json("Server error");
+    console.log(err);
+    return res
+      .status(500)
+      .json({ ok: false, message: err.message || "Server error" });
   }
 };
 

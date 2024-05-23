@@ -49,23 +49,12 @@ const userSchema = new mongoose.Schema({
     },
   },
   photo: {
-    type: String,
-    required: true,
-    validate(value) {
-      const validFormats = ["image/jpeg", "image/png"];
-      if (!validFormats.includes(value.contentType)) {
-        throw new Error("Photo must be in JPEG or PNG format");
-      }
-    },
+    data: Buffer,
+    contentType: String,
   },
   cv: {
-    type: String,
-    required: true,
-    validate(value) {
-      if (value.contentType !== "application/pdf") {
-        throw new Error("CV must be in PDF format");
-      }
-    },
+    data: Buffer,
+    contentType: String,
   },
   isAdmin: {
     type: Boolean,
@@ -75,14 +64,6 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-});
-
-userSchema.pre("save", async function (next) {
-  const user = this;
-  if (user.isModified("password")) {
-    user.password = await bcrypt.hash(user.password, 8);
-  }
-  next();
 });
 
 const userModel = mongoose.model("User", userSchema);
