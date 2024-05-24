@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 
 const { connection } = require("./config/db");
 const { userRouter } = require("./routes/user.route");
+const { authRouter } = require("./routes/auth.route");
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
   return res.status(200).json({ message: "Connected To Server" });
 });
 
+app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 
 app.listen(port, async () => {
