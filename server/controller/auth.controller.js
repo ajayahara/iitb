@@ -34,6 +34,8 @@ const signup = async (req, res) => {
     const cv = req.files["cv"][0];
     const photoBuffer = await fs.readFile(photo.path);
     const cvBuffer = await fs.readFile(cv.path);
+    await fs.unlink(photo.path);
+    await fs.unlink(cv.path);
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new userModel({
@@ -51,8 +53,6 @@ const signup = async (req, res) => {
       },
     });
     await user.save();
-    await fs.unlink(photo.path);
-    await fs.unlink(cv.path);
     return res
       .status(200)
       .json({ ok: true, message: "Signup successful! Please log in." });
@@ -79,7 +79,7 @@ const login = async (req, res) => {
         .status(400)
         .json({ ok: false, message: "Invalid username or password." });
     }
-    const user = await userModel.findOne({ username }).select('-photo -cv');
+    const user = await userModel.findOne({ username }).select("-cv");
     if (!user) {
       return res
         .status(401)
@@ -100,7 +100,20 @@ const login = async (req, res) => {
     const payload = { userId: user._id, isAdmin: user.isAdmin };
     const secret = process.env.SECRET;
     const token = jwt.sign(payload, secret, { expiresIn: "1D" });
-    return res.status(200).json({ ok: true, token, isAdmin: user.isAdmin });
+    const photoBase64 = user.photo.data.toString("base64");
+    const photo = {
+      data: photoBase64,
+      contentType: user.photo.contentType,
+    };
+    const details = {
+      username: user.username,
+      email: user.email,
+      dateOfBirth: user.dateOfBirth,
+      photo,
+    };
+    return res
+      .status(200)
+      .json({ ok: true, token, isAdmin: user.isAdmin, details });
   } catch (err) {
     console.log(err);
     return res

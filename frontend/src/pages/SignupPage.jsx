@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Flex,
   FormControl,
@@ -9,11 +8,14 @@ import {
   Stack,
   Image,
   useToast,
+  Grid,
+  GridItem,
+  Text,
 } from "@chakra-ui/react";
 import { useContext, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { Navigate,  Link } from "react-router-dom";
 import { authContext } from "../context/AuthContext";
 
 export const SignupPage = () => {
@@ -58,21 +60,12 @@ export const SignupPage = () => {
           },
         }
       );
-      if (ok) {
-        toast({
-          title: "Signup successful",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        });
-      } else {
-        toast({
-          title: message,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
+      toast({
+        title: message,
+        status: ok ? "success" : "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       toast({
         title: error.response?.data?.message || "Server error",
@@ -84,13 +77,15 @@ export const SignupPage = () => {
 
     setLoading(false);
   };
+
   if (token) {
     return <Navigate to="/" />;
   }
+
   return (
     <Stack
       minH={"100vh"}
-      bgColor={"black"}
+      bg={"#082e3b"}
       textColor={"white"}
       direction={{ base: "column", md: "row" }}
     >
@@ -104,86 +99,111 @@ export const SignupPage = () => {
         />
       </Flex>
       <Flex p={8} flex={1} align={"center"} justify={"center"}>
-        <Stack spacing={4} w={"full"}>
-          <Heading fontSize={"3xl"}>Sign up for an account &rarr;</Heading>
+        <Stack
+          spacing={4}
+          w={"full"}
+          maxW={"2xl"}
+          pt={6}
+          pb={8}
+          px={12}
+          rounded={"md"}
+        >
+          <Heading fontSize={"3xl"}>Create an account &rarr;</Heading>
           <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-            <Box>
-              <FormControl id="username">
-                <FormLabel>Username :</FormLabel>
-                <Input
-                  type="text"
-                  isRequired={true}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  p={1}
-                />
-              </FormControl>
-              <FormControl id="email">
-                <FormLabel>Email :</FormLabel>
-                <Input
-                  type="email"
-                  isRequired={true}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  p={1}
-                />
-              </FormControl>
-              <FormControl id="password">
-                <FormLabel>Password :</FormLabel>
-                <Input
-                  type="password"
-                  isRequired={true}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  p={1}
-                />
-              </FormControl>
-              <FormControl id="dateOfBirth">
-                <FormLabel>Date of Birth :</FormLabel>
-                <Input
-                  type="date"
-                  isRequired={true}
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
-                  p={1}
-                />
-              </FormControl>
-              <FormControl id="photo">
-                <FormLabel>Photo :</FormLabel>
-                <Input
-                  type="file"
-                  accept={["image/png", "image/jpeg"]}
-                  isRequired={true}
-                  onChange={handlePhotoChange}
-                  p={1}
-                />
-              </FormControl>
-              <FormControl id="cv">
-                <FormLabel>CV :</FormLabel>
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  isRequired={true}
-                  onChange={handleCvChange}
-                  p={1}
-                />
-              </FormControl>
-              <Stack spacing={6}>
-                <ReCAPTCHA
-                  sitekey={import.meta.env.VITE_SECRET}
-                  size="invisible"
-                  ref={reRef}
-                />
-                <Button
-                  colorScheme={"blue"}
-                  variant={"solid"}
-                  type="submit"
-                  isLoading={loading}
-                >
-                  Sign Up
-                </Button>
-              </Stack>
-            </Box>
+            <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+              <GridItem colSpan={1}>
+                <FormControl id="username" isRequired>
+                  <FormLabel>Username :</FormLabel>
+                  <Input
+                    type="text"
+                    isRequired={true}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    p={1}
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <FormControl id="email" isRequired>
+                  <FormLabel>Email :</FormLabel>
+                  <Input
+                    type="email"
+                    isRequired={true}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    p={1}
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <FormControl id="password" isRequired>
+                  <FormLabel>Password :</FormLabel>
+                  <Input
+                    type="password"
+                    isRequired={true}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    p={1}
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <FormControl id="dateOfBirth" isRequired>
+                  <FormLabel>Date of Birth :</FormLabel>
+                  <Input
+                    type="date"
+                    isRequired={true}
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    p={1}
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem colSpan={2}>
+                <FormControl id="photo" isRequired>
+                  <FormLabel>Photo :</FormLabel>
+                  <Input
+                    type="file"
+                    accept={["image/png", "image/jpeg"]}
+                    isRequired={true}
+                    onChange={handlePhotoChange}
+                    p={1}
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem colSpan={2}>
+                <FormControl id="cv" isRequired>
+                  <FormLabel>CV :</FormLabel>
+                  <Input
+                    type="file"
+                    accept="application/pdf"
+                    isRequired={true}
+                    onChange={handleCvChange}
+                    p={1}
+                  />
+                </FormControl>
+              </GridItem>
+            </Grid>
+            <Stack spacing={4}>
+              <ReCAPTCHA
+                sitekey={import.meta.env.VITE_SECRET}
+                size="invisible"
+                ref={reRef}
+              />
+              <Button
+                colorScheme={"blue"}
+                variant={"solid"}
+                type="submit"
+                isLoading={loading}
+              >
+                Sign Up
+              </Button>
+            </Stack>
+            <Stack pt={2}>
+              <Text align={"center"}>
+                Already have an account ? <Link to={"/login"}>Login</Link>
+              </Text>
+            </Stack>
           </form>
         </Stack>
       </Flex>

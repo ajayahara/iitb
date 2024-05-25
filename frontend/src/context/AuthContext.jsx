@@ -5,9 +5,11 @@ const authContext = createContext();
 const AuthContextProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [admin, setAdmin] = useState(false);
-  const login = ({ token, isAdmin }) => {
+  const [details,setDetails]=useState({})
+  const login = ({ token, isAdmin, details }) => {
     setToken(token);
     setAdmin(isAdmin);
+    setDetails(details);
   };
   const logout = () => {
     setToken(null);
@@ -15,7 +17,7 @@ const AuthContextProvider = ({ children }) => {
   };
 
   return (
-    <authContext.Provider value={{ token, admin, login, logout }}>
+    <authContext.Provider value={{ token, admin, details, login, logout }}>
       {children}
     </authContext.Provider>
   );

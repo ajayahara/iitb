@@ -8,10 +8,28 @@ const getAllUsers = async (req, res) => {
       message: "Unauthorized: Only admins can access all users",
     });
   }
+
   try {
-    const users = await userModel.find().select("-password -photo -cv");
-    return res.status(200).json({ ok: true, users });
+    const { page = 1, limit = 10, isVerified } = req.query;
+    const filter = {};
+    if (isVerified !== undefined) {
+      filter.isVerified = isVerified === "true";
+    }
+    const skip = (page - 1) * limit;
+    const users = await userModel
+      .find(filter)
+      .select("-password -photo -cv")
+      .skip(skip)
+      .limit(parseInt(limit));
+    const totalUsers = await userModel.countDocuments(filter);
+    return res.status(200).json({
+      ok: true,
+      users,
+      totalPages: Math.ceil(totalUsers / limit),
+      currentPage: parseInt(page),
+    });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ ok: false, message: "Server error" });
   }
 };
@@ -62,14 +80,15 @@ const updateUserById = async (req, res) => {
     // code to update by admin
     const adminCanUpdate = {
       ...userCanUpdate,
-      isVerified: user.isVerified || isVerified,
+      isVerified:isVerified,
     };
     await userModel.findByIdAndUpdate(
       id,
       isAdmin ? adminCanUpdate : userCanUpdate
     );
-    return res.status(200).json({ ok: true, updatedUser });
+    return res.status(200).json({ ok: true, message:"Updated Successfully" });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ ok: false, message: "Server error" });
   }
 };

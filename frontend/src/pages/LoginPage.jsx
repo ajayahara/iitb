@@ -8,11 +8,12 @@ import {
   Stack,
   Image,
   useToast,
+  Text,
 } from "@chakra-ui/react";
 import { useContext, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { authContext } from "../context/AuthContext";
 
 export const LoginPage = () => {
@@ -38,9 +39,9 @@ export const LoginPage = () => {
           recaptchaToken,
         }
       );
-      const { ok, token, isAdmin } = data;
+      const { ok, token, isAdmin, details } = data;
       if (ok) {
-        login({ token, isAdmin });
+        login({ token, isAdmin, details  });
         toast({
           title: "Login successful",
           status: "success",
@@ -71,33 +72,44 @@ export const LoginPage = () => {
   return (
     <Stack
       minH={"100vh"}
-      bgColor={"black"}
-      textColor={"white"}
+      bgColor={"white"}
       direction={{ base: "column", md: "row" }}
+      bg={"#082e3b"}
+      textColor={"white"}
     >
       <Flex p={8} flex={1} align={"center"} justify={"center"}>
-        <Stack spacing={4} w={"full"} maxW={"md"}>
+        <Stack
+          spacing={4}
+          w={"full"}
+          maxW={"xl"}
+          pt={6}
+          pb={8}
+          px={12}
+          rounded={"lg"}
+        >
           <Heading fontSize={"3xl"}>Login to your account &rarr;</Heading>
           <form onSubmit={handleSubmit}>
-            <FormControl id="username">
+            <FormControl id="username" isRequired>
               <FormLabel>Username :</FormLabel>
               <Input
                 type="text"
                 isRequired={true}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                p={1}
               />
             </FormControl>
-            <FormControl id="password">
+            <FormControl id="password" isRequired>
               <FormLabel>Password :</FormLabel>
               <Input
                 type="password"
                 isRequired={true}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                p={1}
               />
             </FormControl>
-            <Stack spacing={6} mt={"4"}>
+            <Stack spacing={4} mt={"4"}>
               <Button
                 colorScheme={"blue"}
                 variant={"solid"}
@@ -111,6 +123,14 @@ export const LoginPage = () => {
                 size="invisible"
                 ref={reRef}
               />
+            </Stack>
+            <Stack pt={2}>
+              <Text align={"center"}>
+                Don&apos;t have an account ?{" "}
+                <Link to={"/signup"}>
+                  Sign up
+                </Link>
+              </Text>
             </Stack>
           </form>
         </Stack>
