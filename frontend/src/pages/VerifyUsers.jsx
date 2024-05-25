@@ -55,7 +55,12 @@ export const VerifyUsers = () => {
       } = await axios.patch(
         `${import.meta.env.VITE_SERVER}/users/${userId}`,
         { userId, isVerified: currentStatus },
-        { headers: { authorization: token } }
+        {
+          headers: {
+            authorization: token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       fetchUsers();
       toast({
@@ -78,25 +83,26 @@ export const VerifyUsers = () => {
   }, [page, isVerifiedFilter]);
 
   return (
-    <Box p={8} bg={"#082e3b"} minH={"100vh"} color={"white"}>
-      <Heading mb={4} textAlign={"center"}>
-        Admin Page
+    <Box p={8} pt="14" bg={"#082e3b"} minH={"100vh"} color={"white"}>
+      <Heading mb={4} as="h3" fontSize="3xl" textAlign={"center"}>
+        User verification dashboard &rarr;
       </Heading>
+      <hr style={{ marginBottom: "10px" }} />
       <Flex mb={4} justifyContent={"end"} w="full" gap="4">
         <Flex justify="space-between" gap="2" alignItems={"center"}>
           <Button
             onClick={() => setPage(page - 1)}
             size="sm"
-            disabled={page <= 1}
+            isDisabled={page == 1}
           >
-            Previous
+            Prev
           </Button>
           <Box>
             Page {page} of {totalPages}
           </Box>
           <Button
             onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages}
+            isDisabled={page == totalPages}
             size="sm"
           >
             Next
@@ -124,13 +130,17 @@ export const VerifyUsers = () => {
             <Th>Email</Th>
             <Th>Date of Birth</Th>
             <Th>Verified</Th>
-            <Th pr={0} textAlign={"right"}>Actions</Th>
+            <Th pr={0} textAlign={"right"}>
+              Actions
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
           {users.map((user, i) => (
             <Tr key={user._id}>
-              <Td pl={0} py={1}>{(page - 1) * 10 + i + 1}</Td>
+              <Td pl={0} py={1}>
+                {(page - 1) * 10 + i + 1}
+              </Td>
               <Td py={1}>{user.username}</Td>
               <Td py={1}>{user.email}</Td>
               <Td py={1}>{new Date(user.dateOfBirth).toLocaleDateString()}</Td>

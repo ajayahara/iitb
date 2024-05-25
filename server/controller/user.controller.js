@@ -1,3 +1,4 @@
+const { isStrongPassword } = require("validator");
 const { userModel } = require("../models/user.model");
 
 // get all user for admin
@@ -11,7 +12,9 @@ const getAllUsers = async (req, res) => {
 
   try {
     const { page = 1, limit = 10, isVerified } = req.query;
-    const filter = {};
+    const filter = {
+      isAdmin: false,
+    };
     if (isVerified !== undefined) {
       filter.isVerified = isVerified === "true";
     }
@@ -49,8 +52,27 @@ const getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ ok: false, message: "User not found" });
     }
-    return res.status(200).json({ ok: true, user });
+    const photoBase64 = user.photo.data.toString("base64");
+    const cvBase64 = user.cv.data.toString("base64");
+    const photo = {
+      data: photoBase64,
+      contentType: user.photo.contentType,
+    };
+    const cv = {
+      data: cvBase64,
+      contentType: user.cv.contentType,
+    };
+    const details = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      dateOfBirth: user.dateOfBirth,
+      photo,
+      cv,
+    };
+    return res.status(200).json({ ok: true, user: details });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ ok: false, message: "Server error" });
   }
 };
@@ -59,36 +81,51 @@ const getUserById = async (req, res) => {
 const updateUserById = async (req, res) => {
   const { id } = req.params;
   const { userId, isAdmin } = req.user;
-  const { username, email, dateOfBirth, isVerified } = req.body;
-  if (!isAdmin && id !== userId) {
-    return res.status(403).json({
-      ok: false,
-      message: "Unauthorized: You or Admin can only update your own profile",
-    });
-  }
+  const { username, email, password, dateOfBirth, photo, cv, isVerified } =
+    req.body;
   try {
+    if (!isAdmin && id !== userId) {
+      return res.status(403).json({
+        ok: false,
+        message: "Unauthorized: You or Admin can only update your own profile",
+      });
+    }
+
     const user = await userModel.findById(id);
     if (!user) {
       return res.status(404).json({ ok: false, message: "User not found" });
     }
-    // code to update by user
-    const userCanUpdate = {
-      username: user.username || username,
-      email: user.email || email,
-      dateOfBirth: user.dateOfBirth || dateOfBirth,
-    };
-    // code to update by admin
-    const adminCanUpdate = {
-      ...userCanUpdate,
-      isVerified:isVerified,
-    };
-    await userModel.findByIdAndUpdate(
-      id,
-      isAdmin ? adminCanUpdate : userCanUpdate
-    );
-    return res.status(200).json({ ok: true, message:"Updated Successfully" });
+
+    const updateFields = {};
+
+    if (username) updateFields.username = username;
+    if (email) updateFields.email = email;
+    if (dateOfBirth) updateFields.dateOfBirth = dateOfBirth;
+
+    if (password) {
+      if (!isStrongPassword(password)) {
+        res.status(404).json({ ok: false, message: "Not a strong password" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateFields.password = hashedPassword;
+    }
+
+    if (photo && photo.data) {
+      updateFields.photo = photo;
+    }
+
+    if (cv && cv.data) {
+      updateFields.cv = cv;
+    }
+
+    if (isAdmin && isVerified != undefined) {
+      updateFields.isVerified = isVerified;
+    }
+
+    await userModel.findByIdAndUpdate(id, updateFields);
+    return res.status(200).json({ ok: true, message: "Updated Successfully" });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, message: "Server error" });
   }
 };

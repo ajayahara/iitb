@@ -1,13 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const fs = require("fs").promises;
 
 const { userModel } = require("../models/user.model");
 const { verifyRecaptcha } = require("../service/recaptcha");
+const { isStrongPassword } = require("validator");
 
 // user signup
 const signup = async (req, res) => {
-  const { username, email, password, dateOfBirth, recaptchaToken } = req.body;
+  const { username, email, password, dateOfBirth, photo, cv, recaptchaToken } =
+    req.body;
   try {
     const isHuman = await verifyRecaptcha(recaptchaToken);
     if (!isHuman) {
@@ -15,42 +16,28 @@ const signup = async (req, res) => {
         .status(400)
         .json({ ok: false, message: "reCAPTCHA verification failed" });
     }
-    if (req.fileValidationError) {
-      return res
-        .status(400)
-        .json({ ok: false, message: req.fileValidationError });
-    }
-    if (!username || !email || !password || !dateOfBirth) {
+    if (!username || !email || !password || !dateOfBirth || !photo || !cv) {
       return res
         .status(400)
         .json({ ok: false, message: "All fields are required." });
     }
-    if (!req.files || !req.files["photo"] || !req.files["cv"]) {
+
+    // Hash the password
+    if (!isStrongPassword(password)) {
       return res
         .status(400)
-        .json({ ok: false, message: "Photo and CV are required." });
+        .json({ ok: false, message: "Password is not strong" });
     }
-    const photo = req.files["photo"][0];
-    const cv = req.files["cv"][0];
-    const photoBuffer = await fs.readFile(photo.path);
-    const cvBuffer = await fs.readFile(cv.path);
-    await fs.unlink(photo.path);
-    await fs.unlink(cv.path);
-    // Hash the password
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = new userModel({
       username,
       email,
       password: hashedPassword,
       dateOfBirth,
-      photo: {
-        data: photoBuffer,
-        contentType: photo.mimetype,
-      },
-      cv: {
-        data: cvBuffer,
-        contentType: cv.mimetype,
-      },
+      photo,
+      cv,
     });
     await user.save();
     return res
@@ -79,7 +66,7 @@ const login = async (req, res) => {
         .status(400)
         .json({ ok: false, message: "Invalid username or password." });
     }
-    const user = await userModel.findOne({ username }).select("-cv");
+    const user = await userModel.findOne({ username });
     if (!user) {
       return res
         .status(401)
@@ -105,11 +92,18 @@ const login = async (req, res) => {
       data: photoBase64,
       contentType: user.photo.contentType,
     };
+    const cvBase64 = user.cv.data.toString("base64");
+    const cv = {
+      data: cvBase64,
+      contentType: user.cv.contentType,
+    };
     const details = {
+      _id: user._id,
       username: user.username,
       email: user.email,
       dateOfBirth: user.dateOfBirth,
       photo,
+      cv
     };
     return res
       .status(200)

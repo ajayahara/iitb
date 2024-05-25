@@ -6,14 +6,38 @@ import {
   Text,
   Heading,
   Stack,
+  useToast,
 } from "@chakra-ui/react";
 import { Profile } from "../components/Profile";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { authContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { EditModal } from "../components/EditModal";
+import { Resume } from "../components/Resume";
 
 export const Dashboard = () => {
-  const { details } = useContext(authContext);
+  const { details, admin, token, updateDetails } = useContext(authContext);
+  const [open, setOpen] = useState(false);
+  const toast = useToast();
+  const fetchUser = async (id) => {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_SERVER}/users/${id}`,
+        {
+          headers: { authorization: token },
+        }
+      );
+      updateDetails(data.user);
+    } catch (error) {
+      toast({
+        title: "Error fetching users",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
   return (
     <Stack
       minH={"100vh"}
@@ -37,7 +61,7 @@ export const Dashboard = () => {
             reiciendis suscipit doloribus maxime! Obcaecati vero sapiente eius
             facilis mollitia molestias aperiam et?
           </Text>
-          <Stack direction={{ base: "column", md: "row" }} spacing={6} mt={6}>
+          <Stack direction={{ base: "column", md: "row" }} spacing={6} mt={4}>
             <Button
               rounded={"full"}
               bg={"blue.400"}
@@ -45,20 +69,23 @@ export const Dashboard = () => {
               _hover={{
                 bg: "blue.500",
               }}
+              onClick={() => setOpen(true)}
             >
               Update Profie
             </Button>
-            <Link to="/verify">
-              <Button
-                rounded={"full"}
-                color={"blue.500"}
-                _hover={{
-                  bg: "whitesmoke",
-                }}
-              >
-                See All The Users
-              </Button>
-            </Link>
+            {admin ? (
+              <Link to="/verify">
+                <Button
+                  rounded={"full"}
+                  color={"blue.500"}
+                  _hover={{
+                    bg: "whitesmoke",
+                  }}
+                >
+                  See All The Users
+                </Button>
+              </Link>
+            ) : null}
           </Stack>
         </Stack>
       </Flex>
@@ -68,7 +95,8 @@ export const Dashboard = () => {
             p="4"
             py="8"
             pb="10"
-            border="1px solid white"
+            border="1px solid"
+            borderColor={"blue.400"}
             color="white"
             rounded={"md"}
           >
@@ -100,13 +128,20 @@ export const Dashboard = () => {
               </Stack>
             </Box>
             <Center w="full">
-              <Button w="full" bg="blue.400" color={"white"}>
-                Download CV &darr;
-              </Button>
+              <Resume
+                data={details?.cv.data}
+                contentType={details?.cv.contentType}
+              />
             </Center>
           </Box>
         </Stack>
       </Flex>
+      <EditModal
+        user={details}
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onSave={() => fetchUser(details._id)}
+      />
     </Stack>
   );
 };
