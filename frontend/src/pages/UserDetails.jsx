@@ -133,8 +133,8 @@ export const UserDetails = () => {
             </Box>
             <Center w="full">
               <Resume
-                data={details?.cv.data}
-                contentType={details?.cv.contentType}
+                data={details?.cv?.data}
+                contentType={details?.cv?.contentType}
               />
             </Center>
           </Box>
