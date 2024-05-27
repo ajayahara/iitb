@@ -6,17 +6,13 @@ export const Resume = ({ data, contentType }) => {
 
   useEffect(() => {
     if (!data || !contentType) return;
-    const base64Data = btoa(
-      String.fromCharCode.apply(null, new Uint8Array(data))
-    );
-
-    const url = `data:${contentType};base64,${base64Data}`;
+    const url = `data:${contentType};base64,${data}`;
     setResume(url);
   }, [data, contentType]);
 
   return (
-    <Button w="full" bg="blue.400" color={"white"}>
-      <a href={resume} download>
+    <Button w="full" bg="blue.400" color={"white"} _hover={{bg:"white",color:"blue.400"}}>
+      <a href={resume} download="resume.pdf">
         Download CV &darr;
       </a>
     </Button>
