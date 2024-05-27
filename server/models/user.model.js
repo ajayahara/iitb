@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
-
+const allowedPhotoTypes = ['image/png', 'image/jpeg'];
+const allowedCvTypes = ['application/pdf'];
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -50,11 +51,27 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     data: Buffer,
-    contentType: String,
+    contentType: {
+      type: String,
+      validate: {
+        validator: function(v) {
+          return allowedPhotoTypes.includes(v);
+        },
+        message: props => `${props.value} is not a valid photo content type!`
+      }
+    },
   },
   cv: {
     data: Buffer,
-    contentType: String,
+    contentType:  {
+      type: String,
+      validate: {
+        validator: function(v) {
+          return allowedCvTypes.includes(v);
+        },
+        message: props => `${props.value} is not a valid CV content type!`
+      }
+    },
   },
   isAdmin: {
     type: Boolean,

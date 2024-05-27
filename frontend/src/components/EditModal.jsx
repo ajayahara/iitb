@@ -63,30 +63,26 @@ export const EditModal = ({ user, isOpen, onClose, onSave }) => {
       toast({
         title: "User updated successfully",
         status: "success",
-        duration: 5000,
-        isClosable: true,
       });
       onClose();
     } catch (error) {
       toast({
         title: error.response?.data?.message || "Server error",
         status: "error",
-        duration: 5000,
-        isClosable: true,
       });
     }
     setLoading(false);
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} size={{ base: "full", sm: "md", md: "lg" }}>
       <ModalOverlay />
-      <ModalContent bg={"#082e3b"} color="white">
+      <ModalContent bg={"#082e3b"} color="white" my={"auto"}>
         <ModalHeader>Edit User Details</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <form onSubmit={handleSubmit}>
-            <FormControl id="username">
+            <FormControl id="username" mb={4}>
               <FormLabel>Username</FormLabel>
               <Input
                 p={1}
@@ -95,7 +91,7 @@ export const EditModal = ({ user, isOpen, onClose, onSave }) => {
                 onChange={(e) => setUsername(e.target.value)}
               />
             </FormControl>
-            <FormControl id="email" mt={2}>
+            <FormControl id="email" mb={4}>
               <FormLabel>Email</FormLabel>
               <Input
                 p={1}
@@ -104,7 +100,7 @@ export const EditModal = ({ user, isOpen, onClose, onSave }) => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </FormControl>
-            <FormControl id="password">
+            <FormControl id="password" mb={4}>
               <FormLabel>Password</FormLabel>
               <Input
                 p={1}
@@ -113,7 +109,7 @@ export const EditModal = ({ user, isOpen, onClose, onSave }) => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </FormControl>
-            <FormControl id="dateOfBirth" mt={2}>
+            <FormControl id="dateOfBirth" mb={4}>
               <FormLabel>Date of Birth</FormLabel>
               <Input
                 p={1}
@@ -122,16 +118,16 @@ export const EditModal = ({ user, isOpen, onClose, onSave }) => {
                 onChange={(e) => setDateOfBirth(e.target.value)}
               />
             </FormControl>
-            <FormControl id="photo" mt={2}>
+            <FormControl id="photo" mb={4}>
               <FormLabel>Photo</FormLabel>
               <Input
                 p={1}
                 type="file"
-                accept={["image/png", "image/jpeg"]}
+                accept="image/png, image/jpeg"
                 onChange={handlePhotoChange}
               />
             </FormControl>
-            <FormControl id="cv" mt={2}>
+            <FormControl id="cv" mb={4}>
               <FormLabel>CV</FormLabel>
               <Input
                 p={1}
@@ -148,10 +144,15 @@ export const EditModal = ({ user, isOpen, onClose, onSave }) => {
             mr={3}
             onClick={handleSubmit}
             isLoading={loading}
+            width={{ base: "full", sm: "auto" }}
           >
             Save
           </Button>
-          <Button variant="ghost" onClick={onClose}>
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            width={{ base: "full", sm: "auto" }}
+          >
             Cancel
           </Button>
         </ModalFooter>

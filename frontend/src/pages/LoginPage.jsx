@@ -41,80 +41,82 @@ export const LoginPage = () => {
       );
       const { ok, token, isAdmin, details } = data;
       if (ok) {
-        login({ token, isAdmin, details  });
+        login({ token, isAdmin, details });
         toast({
           title: "Login successful",
           status: "success",
-          duration: 5000,
-          isClosable: true,
         });
       } else {
         toast({
           title: data.message,
           status: "error",
-          duration: 5000,
-          isClosable: true,
         });
       }
     } catch (error) {
       toast({
         title: error.response?.data?.message || "Server error",
         status: "error",
-        duration: 5000,
-        isClosable: true,
       });
     }
     setLoading(false);
   };
+
   if (token) {
     return <Navigate to="/" />;
   }
+
   return (
     <Stack
       minH={"100vh"}
-      bgColor={"white"}
-      direction={{ base: "column", md: "row" }}
+      direction={{ base: "column", lg: "row" }}
       bg={"#082e3b"}
       textColor={"white"}
     >
-      <Flex p={8} flex={1} align={"center"} justify={"center"}>
+      <Flex
+        p={{ base: 0, md: 8 }}
+        pt={{ base: "10", md: "8" }}
+        flex={1}
+        align={"center"}
+        justify={"center"}
+      >
         <Stack
           spacing={4}
           w={"full"}
-          maxW={"xl"}
-          pt={6}
-          pb={8}
-          px={12}
+          maxW={{ base: "full", md: "full", lg:"xl" }}
+          pt={{ base: 6, md: 8 }}
+          pb={{ base: 6, md: 8 }}
+          px={{ base: 4, md: 2 }}
           rounded={"lg"}
         >
-          <Heading fontSize={"3xl"}>Login to your account &rarr;</Heading>
+          <Heading fontSize={{ base: "2xl", md: "3xl" }}>
+            Login to your account &rarr;
+          </Heading>
           <form onSubmit={handleSubmit}>
             <FormControl id="username" isRequired>
               <FormLabel>Username :</FormLabel>
               <Input
                 type="text"
-                isRequired={true}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                p={1}
+                p={2}
               />
             </FormControl>
-            <FormControl id="password" isRequired>
+            <FormControl id="password" isRequired mt={4}>
               <FormLabel>Password :</FormLabel>
               <Input
                 type="password"
-                isRequired={true}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                p={1}
+                p={2}
               />
             </FormControl>
-            <Stack spacing={4} mt={"4"}>
+            <Stack spacing={4} mt={6}>
               <Button
                 colorScheme={"blue"}
                 variant={"solid"}
                 type="submit"
                 isLoading={loading}
+                width={{ base: "full", sm: "auto" }}
               >
                 Login
               </Button>
@@ -124,11 +126,11 @@ export const LoginPage = () => {
                 ref={reRef}
               />
             </Stack>
-            <Stack pt={2}>
+            <Stack pt={4}>
               <Text align={"center"}>
-                Don&apos;t have an account ?{" "}
+                Don&apos;t have an account?{" "}
                 <Link to={"/signup"}>
-                  Sign up
+                  <Text as="span" color="blue.400">Signup</Text>
                 </Link>
               </Text>
             </Stack>
@@ -140,7 +142,7 @@ export const LoginPage = () => {
           alt={"Login Image"}
           objectFit={"cover"}
           src={
-            "https://media.istockphoto.com/id/981600810/photo/exiting-the-void.jpg?s=612x612&w=0&k=20&c=OFduMv4GTQQKqa-BdsFw3Om4HCnx5obaNnofTVMwNX8="
+            "https://images.unsplash.com/photo-1637166185518-058f5896a2e9?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGZ1dHVyaXN0aWN8ZW58MHx8MHx8fDA%3D"
           }
         />
       </Flex>

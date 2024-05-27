@@ -6,7 +6,11 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { AuthContextProvider } from "./context/AuthContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <ChakraProvider>
+  <ChakraProvider
+    toastOptions={{
+      defaultOptions: { position: "bottom", duration: 5000, isClosable: true },
+    }}
+  >
     <BrowserRouter>
       <AuthContextProvider>
         <App />

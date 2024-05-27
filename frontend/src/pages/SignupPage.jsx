@@ -15,7 +15,7 @@ import {
 import { useContext, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
-import { Navigate,  Link } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { authContext } from "../context/AuthContext";
 
 export const SignupPage = () => {
@@ -63,18 +63,13 @@ export const SignupPage = () => {
       toast({
         title: message,
         status: ok ? "success" : "error",
-        duration: 5000,
-        isClosable: true,
       });
     } catch (error) {
       toast({
         title: error.response?.data?.message || "Server error",
         status: "error",
-        duration: 5000,
-        isClosable: true,
       });
     }
-
     setLoading(false);
   };
 
@@ -87,7 +82,7 @@ export const SignupPage = () => {
       minH={"100vh"}
       bg={"#082e3b"}
       textColor={"white"}
-      direction={{ base: "column", md: "row" }}
+      direction={{ base: "column-reverse", lg: "row" }}
     >
       <Flex flex={1}>
         <Image
@@ -98,25 +93,36 @@ export const SignupPage = () => {
           }
         />
       </Flex>
-      <Flex p={8} flex={1} align={"center"} justify={"center"}>
+      <Flex
+        p={{ base: 0, md: 8 }}
+        pt={{ base: "10", md: "8" }}
+        pb={{base:0,md:"2"}}
+        flex={1}
+        align={"center"}
+        justify={"center"}
+      >
         <Stack
           spacing={4}
           w={"full"}
-          maxW={"2xl"}
-          pt={6}
-          pb={8}
-          px={12}
+          maxW={{ base: "full", md: "full", lg: "xl" }}
+          pt={{ base: 6, md: 8 }}
+          pb={{ base: 6, md: 8 }}
+          px={{ base: 4, md: 2 }}
           rounded={"md"}
         >
-          <Heading fontSize={"3xl"}>Create an account &rarr;</Heading>
+          <Heading fontSize={{ base: "2xl", md: "3xl" }}>
+            Create an account &rarr;
+          </Heading>
           <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-            <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+            <Grid
+              templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+              gap={4}
+            >
               <GridItem colSpan={1}>
                 <FormControl id="username" isRequired>
                   <FormLabel>Username :</FormLabel>
                   <Input
                     type="text"
-                    isRequired={true}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     p={1}
@@ -128,7 +134,6 @@ export const SignupPage = () => {
                   <FormLabel>Email :</FormLabel>
                   <Input
                     type="email"
-                    isRequired={true}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     p={1}
@@ -140,7 +145,6 @@ export const SignupPage = () => {
                   <FormLabel>Password :</FormLabel>
                   <Input
                     type="password"
-                    isRequired={true}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     p={1}
@@ -152,7 +156,6 @@ export const SignupPage = () => {
                   <FormLabel>Date of Birth :</FormLabel>
                   <Input
                     type="date"
-                    isRequired={true}
                     value={dateOfBirth}
                     onChange={(e) => setDateOfBirth(e.target.value)}
                     p={1}
@@ -164,8 +167,7 @@ export const SignupPage = () => {
                   <FormLabel>Photo :</FormLabel>
                   <Input
                     type="file"
-                    accept={["image/png", "image/jpeg"]}
-                    isRequired={true}
+                    accept="image/png, image/jpeg"
                     onChange={handlePhotoChange}
                     p={1}
                   />
@@ -177,14 +179,13 @@ export const SignupPage = () => {
                   <Input
                     type="file"
                     accept="application/pdf"
-                    isRequired={true}
                     onChange={handleCvChange}
                     p={1}
                   />
                 </FormControl>
               </GridItem>
             </Grid>
-            <Stack spacing={4}>
+            <Stack spacing={4} mt={4}>
               <ReCAPTCHA
                 sitekey={import.meta.env.VITE_SECRET}
                 size="invisible"
@@ -199,9 +200,14 @@ export const SignupPage = () => {
                 Sign Up
               </Button>
             </Stack>
-            <Stack pt={2}>
+            <Stack pt={4}>
               <Text align={"center"}>
-                Already have an account ? <Link to={"/login"}>Login</Link>
+                Already have an account?{" "}
+                <Link to={"/login"} style={{ color: "blue" }}>
+                  <Text as="span" color="blue.400">
+                    Login
+                  </Text>
+                </Link>
               </Text>
             </Stack>
           </form>
