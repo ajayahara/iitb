@@ -3,6 +3,14 @@
 - Frontend: https://spontaneous-salamander-50a3b0.netlify.app
 - Live Demo: https://drive.google.com/file/d/1qM2P7ekb9DnqmDUB3df7Ph-bYIpQjSRR/view?usp=sharing
 
+## Admin Account
+```bash
+{
+  username:"tajaya28",
+  password:"aA1!@#$%"
+}
+```
+
 Here is the markdown documentation for the provided API controllers:
 # Project Documentation
 

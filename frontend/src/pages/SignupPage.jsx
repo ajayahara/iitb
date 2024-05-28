@@ -157,6 +157,7 @@ export const SignupPage = () => {
                   <Input
                     type="date"
                     value={dateOfBirth}
+                    max={new Date().toISOString().split("T")[0]}
                     onChange={(e) => setDateOfBirth(e.target.value)}
                     p={1}
                   />
